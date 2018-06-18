@@ -1,2 +1,4 @@
 # Viddo
-Viddo Smart Contract and Documentation
+
+This is Smart Contract and Documentation for Viddo Token. 
+Smart Contract is implemented using Truffle FrameWork. 
