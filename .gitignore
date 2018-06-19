@@ -3,3 +3,4 @@ smartcontract/build
 # Word temporary
 ~$*.doc*
 Offer*
+ignore/*

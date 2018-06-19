@@ -9,8 +9,6 @@ var viddoContract = 0;
 var totalSupply = 0;
 
 contract("Test Viddo Token Contract",function(accounts){
-  console.log(accounts[0])
-  console.log(accounts[1])
   describe("Deploy Viddo Token Smart Contract",function(){
     it("Catch an instance of Viddo Token Smart Contract",function(){
       return ViddoToken.new().then(function(instance){
@@ -67,7 +65,7 @@ contract("Test Viddo Token Contract",function(accounts){
 
   });
 
-  describe("Check token transfer function",function(){
+  describe("Check token transfer and balance function",function(){
 
     it("Transfer 50 000 000 tokens from owner to another account (accounts[1])",function(){
       return viddoContract.transfer(accounts[1],50*10**6).then(function(res){
@@ -94,7 +92,19 @@ contract("Test Viddo Token Contract",function(accounts){
     })
 
     it("Transfer 15 000 000 tokens from accounts[1] to accounts[0]",function(){
-      expect (viddoContract.transfer(accounts[0],15*10**6,{"from":accounts[1]})).to.be.eventually.fullfilled;
+      expect (viddoContract.transfer(accounts[0],15*10**6,{"from":accounts[1]})).to.be.eventually.fulfilled;
+    })
+
+    it("accounts[0] balance should be 65 000 000",function(){
+      return viddoContract.balanceOf(accounts[0]).then(function(res){
+        expect(parseInt(res)).to.be.equal(65*10**6)
+      })
+    })
+
+    it("accounts[1] balance should be also 35 000 000",function(){
+      return viddoContract.balanceOf(accounts[1]).then(function(res){
+        expect(parseInt(res)).to.be.equal(35*10**6)
+      })
     })
 
   })
