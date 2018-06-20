@@ -20,9 +20,9 @@ Robert Magier - robert.magier@gmail.com
 ### Remix http://remix.ethereum.org
 To compile and deploy this contract from Remix it is best to first create flat file. Flat file can be generated in smart contract direcotry using command:
 
-**truffle-flattener .\contracts\ViddoToken.sol**
+`truffle-flattener .\contracts\ViddoToken.sol`
 
-To install run command: **npm install -g truffle-flattener**
+To install run command: `npm install -g truffle-flattener`
 
 You have to use Flat file to run code verification process on etherscan.io and also to be able to debug your smartcontract in remix. 
-Truffle allows to compile, migrate and test smartcontract which import another files ( multifile smartcontract ), but it is not yet possible in Remix and Etherscan.io
+Truffle allows to compile, migrate and test smartcontract which import another files ( multifile smartcontract ), but it is not yet possible in  http://remix.ethereum.org and http://Etherscan.io
