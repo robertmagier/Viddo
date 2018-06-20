@@ -12,6 +12,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   {
     totalSupply_ = 100 * 10**6;
     balances[msg.sender] = totalSupply_;
+    emit Transfer(0x0,msg.sender,totalSupply_);
   }
 
 }
