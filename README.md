@@ -7,7 +7,7 @@ Smart Contract is implemented using Truffle FrameWork.
 Robert Magier - robert.magier@gmail.com
 
 ## Functionality
-* ERC20 Standard Token
+* ERC20 Standard Token - https://en.wikipedia.org/wiki/ERC20 *Please have in mind that token won't be recognized by etherscan.io as token unless Transfer event is emitted. It also have o have implemented all functions mentioned in above link*
 * Burnable: Yes
 * Mintable: No
 * Pausable: No
