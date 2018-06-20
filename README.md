@@ -3,10 +3,10 @@
 This is Smart Contract and Documentation for Viddo Token.
 Smart Contract is implemented using Truffle FrameWork.
 
-# Author
+### Author
 Robert Magier - robert.magier@gmail.com
 
-# Functionality
+### Functionality
 * ERC20 Standard Token
 * Burnable: Yes
 * Mintable: No
@@ -17,7 +17,7 @@ Robert Magier - robert.magier@gmail.com
 * Total supply: 100 000 000 (100 \* 10 \*\* 6)
 
 
-# Remix http://remix.ethereum.org
+### Remix http://remix.ethereum.org
 To compile and deploy this contract from Remix it is best to first create flat file. Flat file can be generated in smart contract direcotry using command:
 
 **truffle-flattener .\contracts\ViddoToken.sol**
