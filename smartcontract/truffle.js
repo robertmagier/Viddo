@@ -10,5 +10,10 @@ module.exports = {
       network_id: '*', // Match any network id
       // from:'0x2e6676612c69f4d72d2b3cdc8a7e234778f435b4'
     }
+  },
+
+  mocha:{
+    useColors:true,
+    colors:'plane'
   }
 }

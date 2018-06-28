@@ -8,7 +8,7 @@ expect = chai.expect;
 var viddoContract = 0;
 var totalSupply = 0;
 
-contract("Test Viddo Token Contract", function(accounts) {
+contract("01. Test Viddo Token Contract", function(accounts) {
   describe("Deploy Viddo Token Smart Contract", function() {
     it("Catch an instance of Viddo Token Smart Contract", function() {
       return ViddoToken.new().then(function(instance) {

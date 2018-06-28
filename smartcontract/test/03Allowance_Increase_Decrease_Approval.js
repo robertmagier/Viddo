@@ -10,7 +10,7 @@ var totalSupply = 0;
 var owner = 0;
 
 console.log();
-contract("Testing Allowance and Approval Process + Increase and Decrease Approval. ", function(accounts) {
+contract("03. Testing Allowance and Approval Process + Increase and Decrease Approval. ", function(accounts) {
   describe("Deploy Viddo Token Smart Contract", function() {
     it("Catch an instance of Viddo Token Smart Contract", function() {
       return ViddoToken.new().then(function(instance) {
