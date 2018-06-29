@@ -6,6 +6,12 @@ import "./StandardToken.sol";
 import "./BurnableToken.sol";
 import "./Ownable.sol";
 
+// Docmentation Example
+/**
+@title Viddo Token
+@author Robert Magier
+*/
+
 contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
 
   mapping(address => uint256) proAccounts;
@@ -24,6 +30,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   {
     revert();
   }
+
 
 
 
