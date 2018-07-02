@@ -14,6 +14,8 @@ import "./Ownable.sol";
 
 contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
 
+  event BurnTokenforPro(uint256 amount);
+  
   mapping(address => uint256) proAccounts;
   address saleContract;
 
