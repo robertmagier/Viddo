@@ -48,6 +48,8 @@ contract Crowdsale {
     uint256 amount
   );
 
+  event Refund(address benficiary,uint256 refundValue,uint tokenAmount,uint currentRate,uint weiReceived);
+
   /**
    * @param _rate Number of token units a buyer gets per wei
    * @param _wallet Address where collected funds will be forwarded to
@@ -99,7 +101,7 @@ contract Crowdsale {
 
     _updatePurchasingState(_beneficiary, weiAmount);
 
-    _forwardFunds();
+    _forwardFunds(tokens,_beneficiary);
     _postValidatePurchase(_beneficiary, weiAmount);
   }
 
@@ -183,6 +185,7 @@ contract Crowdsale {
    * @param _weiAmount Value in wei to be converted into tokens
    * @return Number of tokens that can be purchased with the specified _weiAmount
    */
+
   function _getTokenAmount(uint256 _weiAmount)
     internal view returns (uint256)
   {
@@ -192,7 +195,15 @@ contract Crowdsale {
   /**
    * @dev Determines how ETH is stored/forwarded on purchases.
    */
-  function _forwardFunds() internal {
-    wallet.transfer(msg.value);
+  function _forwardFunds(uint256 tokensAmount,address beneficiary) internal {
+
+    uint tokensValue = tokensAmount * rate;
+    require (tokensValue <= msg.value);
+    uint refundValue = msg.value.sub(tokensValue);
+    wallet.transfer(tokensValue);
+    beneficiary.transfer(refundValue);
+    emit Refund(beneficiary,refundValue,tokensAmount,rate,msg.value);
   }
+
+
 }

@@ -1,0 +1,284 @@
+
+======= BasicToken.sol:BasicToken =======
+Developer Documentation
+{
+  "methods" : 
+  {
+    "balanceOf(address)" : 
+    {
+      "details" : "Gets the balance of the specified address.\r",
+      "params" : 
+      {
+        "_owner" : "The address to query the the balance of.\r"
+      },
+      "return" : "An uint256 representing the amount owned by the passed address.\r"
+    },
+    "totalSupply()" : 
+    {
+      "details" : "Total number of tokens in existence\r"
+    },
+    "transfer(address,uint256)" : 
+    {
+      "details" : "Transfer token for a specified address\r",
+      "params" : 
+      {
+        "_to" : "The address to transfer to.\r",
+        "_value" : "The amount to be transferred.\r"
+      }
+    }
+  },
+  "title" : "Basic token\r"
+}
+
+======= BurnableToken.sol:BurnableToken =======
+Developer Documentation
+{
+  "methods" : 
+  {
+    "balanceOf(address)" : 
+    {
+      "details" : "Gets the balance of the specified address.\r",
+      "params" : 
+      {
+        "_owner" : "The address to query the the balance of.\r"
+      },
+      "return" : "An uint256 representing the amount owned by the passed address.\r"
+    },
+    "burn(uint256)" : 
+    {
+      "details" : "Burns a specific amount of tokens.\r",
+      "params" : 
+      {
+        "_value" : "The amount of token to be burned.\r"
+      }
+    },
+    "totalSupply()" : 
+    {
+      "details" : "Total number of tokens in existence\r"
+    },
+    "transfer(address,uint256)" : 
+    {
+      "details" : "Transfer token for a specified address\r",
+      "params" : 
+      {
+        "_to" : "The address to transfer to.\r",
+        "_value" : "The amount to be transferred.\r"
+      }
+    }
+  },
+  "title" : "Burnable Token\r"
+}
+
+======= DetailedERC20.sol:DetailedERC20 =======
+Developer Documentation
+{
+  "methods" : {},
+  "title" : "DetailedERC20 token\r"
+}
+
+======= ERC20.sol:ERC20 =======
+Developer Documentation
+{
+  "methods" : {},
+  "title" : "ERC20 interface\r"
+}
+
+======= ERC20Basic.sol:ERC20Basic =======
+Developer Documentation
+{
+  "methods" : {},
+  "title" : "ERC20Basic\r"
+}
+
+======= Ownable.sol:Ownable =======
+Developer Documentation
+{
+  "methods" : 
+  {
+    "renounceOwnership()" : 
+    {
+      "details" : "Allows the current owner to relinquish control of the contract.\r"
+    },
+    "transferOwnership(address)" : 
+    {
+      "details" : "Allows the current owner to transfer control of the contract to a newOwner.\r",
+      "params" : 
+      {
+        "_newOwner" : "The address to transfer ownership to.\r"
+      }
+    }
+  },
+  "title" : "Ownable\r"
+}
+
+======= SafeMath.sol:SafeMath =======
+Developer Documentation
+{
+  "methods" : {},
+  "title" : "SafeMath\r"
+}
+
+======= StandardToken.sol:StandardToken =======
+Developer Documentation
+{
+  "methods" : 
+  {
+    "allowance(address,address)" : 
+    {
+      "details" : "Function to check the amount of tokens that an owner allowed to a spender.\r",
+      "params" : 
+      {
+        "_owner" : "address The address which owns the funds.\r",
+        "_spender" : "address The address which will spend the funds.\r"
+      },
+      "return" : "A uint256 specifying the amount of tokens still available for the spender.\r"
+    },
+    "approve(address,uint256)" : 
+    {
+      "details" : "Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.\r Beware that changing an allowance with this method brings the risk that someone may use both the old\r and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this\r race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards:\r https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\r",
+      "params" : 
+      {
+        "_spender" : "The address which will spend the funds.\r",
+        "_value" : "The amount of tokens to be spent.\r"
+      }
+    },
+    "balanceOf(address)" : 
+    {
+      "details" : "Gets the balance of the specified address.\r",
+      "params" : 
+      {
+        "_owner" : "The address to query the the balance of.\r"
+      },
+      "return" : "An uint256 representing the amount owned by the passed address.\r"
+    },
+    "decreaseApproval(address,uint256)" : 
+    {
+      "details" : "Decrease the amount of tokens that an owner allowed to a spender.\r approve should be called when allowed[_spender] == 0. To decrement\r allowed value is better to use this function to avoid 2 calls (and wait until\r the first transaction is mined)\r From MonolithDAO Token.sol\r",
+      "params" : 
+      {
+        "_spender" : "The address which will spend the funds.\r",
+        "_subtractedValue" : "The amount of tokens to decrease the allowance by.\r"
+      }
+    },
+    "increaseApproval(address,uint256)" : 
+    {
+      "details" : "Increase the amount of tokens that an owner allowed to a spender.\r approve should be called when allowed[_spender] == 0. To increment\r allowed value is better to use this function to avoid 2 calls (and wait until\r the first transaction is mined)\r From MonolithDAO Token.sol\r",
+      "params" : 
+      {
+        "_addedValue" : "The amount of tokens to increase the allowance by.\r",
+        "_spender" : "The address which will spend the funds.\r"
+      }
+    },
+    "totalSupply()" : 
+    {
+      "details" : "Total number of tokens in existence\r"
+    },
+    "transfer(address,uint256)" : 
+    {
+      "details" : "Transfer token for a specified address\r",
+      "params" : 
+      {
+        "_to" : "The address to transfer to.\r",
+        "_value" : "The amount to be transferred.\r"
+      }
+    },
+    "transferFrom(address,address,uint256)" : 
+    {
+      "details" : "Transfer tokens from one address to another\r",
+      "params" : 
+      {
+        "_from" : "address The address which you want to send tokens from\r",
+        "_to" : "address The address which you want to transfer to\r",
+        "_value" : "uint256 the amount of tokens to be transferred\r"
+      }
+    }
+  },
+  "title" : "Standard ERC20 token\r "
+}
+
+======= ViddoToken.sol:EmptyReceiver =======
+Developer Documentation
+{
+  "author" : "Robert Magier\r",
+  "methods" : {},
+  "title" : "Viddo Token\r"
+}
+
+======= ViddoToken.sol:ViddoToken =======
+Developer Documentation
+{
+  "methods" : 
+  {
+    "allowance(address,address)" : 
+    {
+      "details" : "Function to check the amount of tokens that an owner allowed to a spender.\r",
+      "params" : 
+      {
+        "_owner" : "address The address which owns the funds.\r",
+        "_spender" : "address The address which will spend the funds.\r"
+      },
+      "return" : "A uint256 specifying the amount of tokens still available for the spender.\r"
+    },
+    "approve(address,uint256)" : 
+    {
+      "details" : "Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.\r Beware that changing an allowance with this method brings the risk that someone may use both the old\r and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this\r race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards:\r https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\r",
+      "params" : 
+      {
+        "_spender" : "The address which will spend the funds.\r",
+        "_value" : "The amount of tokens to be spent.\r"
+      }
+    },
+    "balanceOf(address)" : 
+    {
+      "details" : "Gets the balance of the specified address.\r",
+      "params" : 
+      {
+        "_owner" : "The address to query the the balance of.\r"
+      },
+      "return" : "An uint256 representing the amount owned by the passed address.\r"
+    },
+    "burn(uint256)" : 
+    {
+      "details" : "Burns a specific amount of tokens.\r",
+      "params" : 
+      {
+        "_value" : "The amount of token to be burned.\r"
+      }
+    },
+    "decreaseApproval(address,uint256)" : 
+    {
+      "details" : "Decrease the amount of tokens that an owner allowed to a spender.\r approve should be called when allowed[_spender] == 0. To decrement\r allowed value is better to use this function to avoid 2 calls (and wait until\r the first transaction is mined)\r From MonolithDAO Token.sol\r",
+      "params" : 
+      {
+        "_spender" : "The address which will spend the funds.\r",
+        "_subtractedValue" : "The amount of tokens to decrease the allowance by.\r"
+      }
+    },
+    "increaseApproval(address,uint256)" : 
+    {
+      "details" : "Increase the amount of tokens that an owner allowed to a spender.\r approve should be called when allowed[_spender] == 0. To increment\r allowed value is better to use this function to avoid 2 calls (and wait until\r the first transaction is mined)\r From MonolithDAO Token.sol\r",
+      "params" : 
+      {
+        "_addedValue" : "The amount of tokens to increase the allowance by.\r",
+        "_spender" : "The address which will spend the funds.\r"
+      }
+    },
+    "renounceOwnership()" : 
+    {
+      "details" : "Allows the current owner to relinquish control of the contract.\r"
+    },
+    "totalSupply()" : 
+    {
+      "details" : "Total number of tokens in existence\r"
+    },
+    "transferOwnership(address)" : 
+    {
+      "details" : "Allows the current owner to transfer control of the contract to a newOwner.\r",
+      "params" : 
+      {
+        "_newOwner" : "The address to transfer ownership to.\r"
+      }
+    }
+  }
+}
+
