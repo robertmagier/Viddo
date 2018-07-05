@@ -168,12 +168,12 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   ///             it will revert. It is highly inlikely but theoritically possible.
 function GenerateReceiver() public onlyOwner returns (address)
 {
-    EmptyReceiver newReceiver = new EmptyReceiver();
-    require (receivers[address(newReceiver)]==false);
-    require (balanceOf(address(newReceiver)) == 0);
+    address newReceiver = address(new EmptyReceiver());
+    require (receivers[newReceiver]==false);
+    require (balanceOf(newReceiver) == 0);
 
-    receivers[address(newReceiver)] = true;
-    newReceiver.die();
+    receivers[newReceiver] = true;
+    /* EmptyReceiver(newReceiver).die(); */
     return newReceiver;
 }
 
