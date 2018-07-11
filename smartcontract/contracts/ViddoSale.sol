@@ -56,7 +56,7 @@ contract ViddoSale is Crowdsale,WhitelistedCrowdsale{
     require (wallet != 0x0);
     token.transfer(wallet,token.balanceOf(this));
     emit SelfDestruct(wallet);
-    suicide(wallet);
+    selfdestruct(wallet);
 
   }
 
@@ -94,7 +94,7 @@ contract ViddoSale is Crowdsale,WhitelistedCrowdsale{
   /// @notice Changee token price. This function can be called only by contract owner.
   /// @param _rateInWei New token price. Amount of token for sale is calculated as a division of wei amount by rate
   /// @dev new _rateInWei must be bigger than zero. It is not possible to set token price to zero. Pause sale instead of setting price to zero.
-  
+
   function setRate(uint256 _rateInWei) public onlyOwner returns(bool)
   {
     require (_rateInWei > 0);

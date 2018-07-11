@@ -25,21 +25,56 @@ contract("05. Testing Receiver Functionality",   async (accounts)=>{
     })
   });
 
-     describe("Generate New Receiver.",   async () => {
-      it("Catch new receiver address and add it as receiver", async() => {
-      viddoReceiver = await viddoTokenContract.GenerateReceiver.call();
-      console.log('    Viddo Receiver:'.red,viddoReceiver)
-      expect(viddoReceiver).to.be.not.null;
-
+     describe("Generate New Receiver. And check Receiver flow",   async () => {
+      it("Check if receiver is marked as receiver", () => {
+        return viddoTokenContract.GenerateReceiver.sendTransaction().then((res)=>{
+          return viddoTokenContract.lastReceiver().then((res2)=>{
+            return viddoTokenContract.IsReceiver(res2).then((res3)=>{
+              expect(res3).to.be.true;
+            })
+          })
+        })
     })
-      it("Check if receiver is marked as receiver", async() => {
-        var receiver = await viddoTokenContract.GenerateReceiver.call();
-        console.log(receiver)
-        var isR = await viddoTokenContract.IsReceiver.call(receiver)
-        console.log('    Viddo Receiver:'.green,isR)
-        expect(isR).to.be.true
-
+      it("Check if receiver is marked as not confirmed without token transfer", () => {
+        return viddoTokenContract.GenerateReceiver.sendTransaction().then((res)=>{
+          return viddoTokenContract.lastReceiver().then((res2)=>{
+            return viddoTokenContract.IsReceiverConfirmed(res2).then((res3)=>{
+              expect(res3).to.be.false;
+            })
+          })
+        })
     })
+
+      it("Check if receiver is marked as confirmed after token transfer", () => {
+        return viddoTokenContract.GenerateReceiver.sendTransaction().then((res)=>{
+          return viddoTokenContract.lastReceiver().then((res2)=>{
+            return viddoTokenContract.transfer(res2,1).then((res)=>{
+              return viddoTokenContract.IsReceiverConfirmed(res2).then((res3)=>{
+                expect(res3).to.be.true;
+              })
+            })
+          })
+        })
+    })
+
+      it("Check if receiver always use only one token even when you send more.", () => {
+
+        return viddoTokenContract.balanceOf.call(accounts[0]).then((res)=>{
+          var balance = parseInt(res)
+          return viddoTokenContract.GenerateReceiver.sendTransaction().then((res)=>{
+            return viddoTokenContract.lastReceiver().then((res)=>{
+              return viddoTokenContract.transfer(res,balance).then((res)=>{
+                return viddoTokenContract.balanceOf(accounts[0]).then((res)=>{
+                  expect(parseInt(res)).to.be.equal(balance-1);
+                })
+              })
+            })
+          })
+        })
+    })
+
+
+
   });
 
 

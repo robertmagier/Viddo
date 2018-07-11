@@ -14,8 +14,8 @@ var owner = 0;
 var rate = 1;
 
 console.log();
-contract("04. Testing Sale Contract",   async (accounts)=>{
-    await describe("Deploy Viddo Token Smart Contract and ViddoSale Contract",    function () {
+contract("04. Testing Sale Contract",    (accounts)=>{
+     describe("Deploy Viddo Token Smart Contract and ViddoSale Contract",    function () {
       it("Catch an instance of Viddo Token Smart Contract & Viddo Sale Smart Contract", function() {
       return ViddoToken.new().then(function(instance) {
         viddoTokenContract = instance
@@ -28,12 +28,15 @@ contract("04. Testing Sale Contract",   async (accounts)=>{
     })
   });
 
-  await   describe("Checking Viddo Sale variables",   ()=>{
+   describe("Checking Viddo Sale variables",   ()=>{
        it("Rate value should be set as in constructor:" + rate,()=>{
       return viddoSaleContract.rate().then(function(res){
         expect(parseInt(res)).to.be.equal(rate)
       });
     })
+
+
+
     it("Sale contract should have zero tokens",()=>{
     return  viddoTokenContract.balanceOf(viddoSaleContract.address).then(function(res) {
       expect(parseInt(res)).to.be.equal(0)
@@ -42,7 +45,7 @@ contract("04. Testing Sale Contract",   async (accounts)=>{
 
   })
 
-  await   describe("Checking Viddo Sale Buying Transaction", ()=>{
+     describe("Checking Viddo Sale Buying Transaction", ()=>{
        it("Buying transaction should be rejected:",()=>{
        return expect(viddoSaleContract.send(100,{"from":accounts[1]})).to.be.eventually.rejected;
     })
@@ -84,7 +87,7 @@ return  viddoTokenContract.balanceOf(viddoSaleContract.address).then(function(re
 
 })
 
-  await describe("Checking Adding and Removing from WhiteList",  ()=>{
+  describe("Checking Adding and Removing from WhiteList",  ()=>{
     it("Sale contract should have zero tokens",()=>{
  return  viddoTokenContract.balanceOf(viddoSaleContract.address).then(function(res) {
    expect(parseInt(res)).to.be.equal(0)
@@ -102,6 +105,28 @@ return  viddoTokenContract.balanceOf(viddoSaleContract.address).then(function(re
   it("Buying transaction should succeed. Accounts[1] is ON the whitelist",()=>{
   return expect(viddoSaleContract.sendTransaction({"from":accounts[1],"value":1})).to.be.eventually.fulfilled;
 })
+it("Change rate and see if it was changed",()=>{
+  return viddoSaleContract.setRate(30).then(function(res){
+    return viddoSaleContract.rate().then(function(res){
+      expect(parseInt(res)).to.be.equal(30)
+    })
+  });
+})
+
+it("Transfer 100 tokens to Sale Contract. Set Rate to 30. Send 100 wei and check if 3 tokens were received(100/30 == 3 tokens and 10 wei change)",()=>{
+  return viddoTokenContract.transfer(viddoSaleContract.address,100,{"from":accounts[0]}).then((res)=>{
+    return viddoSaleContract.setRate(30).then((res)=>{
+      return viddoTokenContract.balanceOf(accounts[1]).then((res)=>{
+        var balance1 = parseInt (res)
+        return viddoSaleContract.sendTransaction({"from":accounts[1],"value":100}).then((res)=>{
+          return viddoTokenContract.balanceOf(accounts[1]).then((res)=>{
+            expect(parseInt(res)).to.be.equal(balance1+3) //104 = 100 + 1 +3
+          })
+        })
+      })
+    })
+  })
+})
 
   it("Remove accounts[1] from whitelist must be fulfilled",()=>{
   return expect(viddoSaleContract.removeFromWhitelist(accounts[1],{"from":accounts[0]})).to.be.eventually.fulfilled;
@@ -110,7 +135,6 @@ return  viddoTokenContract.balanceOf(viddoSaleContract.address).then(function(re
   it("Buying transaction should fail. Accounts[1] is NOT on the whitelist",()=>{
   return expect(viddoSaleContract.sendTransaction({"from":accounts[1],"value":1})).to.be.eventually.rejected;
 })
-
 
 
 

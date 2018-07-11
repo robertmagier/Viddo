@@ -17,7 +17,7 @@ contract EmptyReceiver
 
   address private owner;
 
-  constructor () {
+  constructor  () public {
     owner = msg.sender;
   }
 
@@ -25,7 +25,7 @@ contract EmptyReceiver
   /// @notice     Destroy this contract to free blockchain resources. We only need this address to generate address.
   /// @dev        Anybody can call this function as the only purpose of this contract is to be killed.
   function die () public{
-    suicide(owner);
+    selfdestruct(owner);
   }
 }
 
@@ -35,6 +35,10 @@ contract EmptyReceiver
 ///               an address where  ViddoToken must be sent to exchange it for Pro Account.
 contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
 
+  /* function GenerateReceiver() public onlyOwner returns (EmptyReceiver); */
+
+  /// @dev Last Receiver is only used for testig purpose because web3 library doesn't allow to read values by state changin transaction. Truffle test framework doesn't also read events. The proper way to read last Receiver value is to read NewProReceiver event value.
+  address public lastReceiver;
   event NewProAccount(address indexed buyer,address indexed proAccountOwner);
   event NewProReceiver(address indexed creator,address indexed receiver);
 
@@ -61,6 +65,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
     totalSupply_ = 100 * 10**6;
     balances[msg.sender] = totalSupply_;
     emit Transfer(0x0,msg.sender,totalSupply_);
+    lastReceiver = this;
   }
 
   /// @author     Robert Magier
@@ -75,7 +80,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   /// @notice     Set burner account address. Can be executed only by Token owner.
   /// @param      _newburner Account address to set as Burner.
   /// @return     true if successfull
-  function SetBurner(address _newburner) onlyOwner returns (bool)
+  function SetBurner(address _newburner) public onlyOwner returns (bool)
   {
     require(_newburner != 0x0);
     burner = _newburner;
@@ -92,9 +97,9 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   ///             have more than one account he simply have to have more ethereum addresses.
   /// @dev        Maybe it should be better to allow to have mor pro account assigned to one ethereum account.
   /// @return     true if successfull
-  function BuyProAccount(address beneficiary) onlyBurner returns (bool)
+  function BuyProAccount(address beneficiary) public onlyBurner returns (bool)
   {
-    require(hasProAccount[beneficiary] = false);
+    require(hasProAccount[beneficiary] == false);
     require(balanceOf(msg.sender) > 0);
     burn(1);
     hasProAccount[beneficiary] = true;
@@ -108,7 +113,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   /// @notice     When Pro Account is bought by viddo.com page this funcion can be used to burn token and emit
   ///             an event informing that New Pro Account was created. In this case no account address  will
   ///             be associated with Pro Account.
-  function BurnForProAccount() onlyBurner returns (bool)
+  function BurnForProAccount() public onlyBurner returns (bool)
   {
     require (balances[msg.sender] > 0);
     burn(1);
@@ -166,7 +171,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   /// @return     New receiver address which was just added as receiver.
   /// @dev        If by any chance this function create receiver address which was added before to the contract then
   ///             it will revert. It is highly inlikely but theoritically possible.
-function GenerateReceiver() public onlyOwner returns (address)
+function GenerateReceiver() public onlyOwner returns (EmptyReceiver)
 {
     address newReceiver = address(new EmptyReceiver());
     require (receivers[newReceiver]==false);
@@ -174,7 +179,11 @@ function GenerateReceiver() public onlyOwner returns (address)
 
     receivers[newReceiver] = true;
     /* EmptyReceiver(newReceiver).die(); */
-    return newReceiver;
+
+    emit NewProReceiver(msg.sender,newReceiver);
+    lastReceiver = newReceiver;
+    return EmptyReceiver(newReceiver);
+
 }
 
 
