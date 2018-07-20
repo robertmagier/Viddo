@@ -39,7 +39,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
 
   /// @dev Last Receiver is only used for testig purpose because web3 library doesn't allow to read values by state changin transaction. Truffle test framework doesn't also read events. The proper way to read last Receiver value is to read NewProReceiver event value.
   address public lastReceiver;
-  event NewProAccount(address indexed buyer,address indexed proAccountOwner);
+  event NewProAccount(address indexed buyer,address indexed proAccountOwner,uint accountsNumber);
   event NewProReceiver(address indexed creator,address indexed receiver);
 
   //mapps ethereum address to Pro Account. User can have only one proAccount so it is true or false.
@@ -104,7 +104,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
     burn(1);
     hasProAccount[beneficiary] = true;
     receiverBenefactor[beneficiary] = msg.sender;
-    emit NewProAccount(msg.sender,beneficiary);
+    emit NewProAccount(msg.sender,beneficiary,1);
     return true;
   }
 
@@ -113,11 +113,11 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   /// @notice     When Pro Account is bought by viddo.com page this funcion can be used to burn token and emit
   ///             an event informing that New Pro Account was created. In this case no account address  will
   ///             be associated with Pro Account.
-  function BurnForProAccount() public onlyBurner returns (bool)
+  function BurnForProAccount(uint _number) public onlyBurner returns (bool)
   {
-    require (balances[msg.sender] > 0);
-    burn(1);
-    emit NewProAccount(msg.sender,0x0);
+    require (balances[msg.sender] >= _number);
+    burn(_number);
+    emit NewProAccount(msg.sender,0x0,_number);
   }
 
 
@@ -207,9 +207,24 @@ function _transferToReceiver(address receiver) internal returns (bool)
   _burn(msg.sender,1);
   hasProAccount[receiver] = true;
   receiverBenefactor[receiver] = msg.sender;
-  emit NewProAccount(msg.sender,receiver);
+  emit NewProAccount(msg.sender,receiver,1);
   return true;
 }
+
+  /// @author   Robert Magier
+  /// @notice   Transfer token from account to many accounts.
+  ///           If transaction to one of those accounts fail then all set fails
+  /// @dev      Make sure that both arrays have equal length. In other case this transaction will fail.
+  ///           If one transfer fails all will fail. Transfer can fail if you doin't have enough tokens. If you transfer
+  ///           to receiver in this transaction then only one token will be used.
+function transferToMany(address[] _beneficiaries, uint[] _values) public
+{
+  require(_beneficiaries.length == _values.length);
+  for (uint256 i = 0; i < _beneficiaries.length; i++) {
+    transfer (_beneficiaries[i],_values[i]);
+  }
+}
+
 
   /// @author   Robert Magier
   /// @notice   This is public ERC20 Standard function. Every ERC20 must implement this function to follow ERC20

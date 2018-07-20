@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 
 import "./Crowdsale.sol";
 import "./WhitelistedCrowdsale.sol";
+import "./oraclizeAPI.sol";
 
 /*
 @title viddoSale
@@ -11,10 +12,16 @@ import "./WhitelistedCrowdsale.sol";
 
 */
 
-contract ViddoSale is Crowdsale,WhitelistedCrowdsale{
+contract ViddoSale is Crowdsale,WhitelistedCrowdsale,usingOraclize{
 
   event SelfDestruct(address wallet);
   bool paused = false;
+
+  uint256 public USDETHPrice;
+  uint256 public rateInCents;
+
+  event newOraclizeQuery(string description);
+  event newETHPrice(string price);
 
   /// @author Robert Magier
   /// @notice ViddoSale contract constructor. Initiate open zeppelin parent Crowdsale contract. Nothing more.
@@ -91,14 +98,108 @@ contract ViddoSale is Crowdsale,WhitelistedCrowdsale{
 
 
   /// @author Robert Magier
-  /// @notice Changee token price. This function can be called only by contract owner.
+  /// @notice Change token price. This function can be called only by contract owner.
   /// @param _rateInWei New token price. Amount of token for sale is calculated as a division of wei amount by rate
-  /// @dev new _rateInWei must be bigger than zero. It is not possible to set token price to zero. Pause sale instead of setting price to zero.
+  /// @dev new _rateInWei must be bigger than zero. It is not possible to set token price to zero. Pause sale instead
+  ///           of setting price to zero. This value will be overwirten when rateInCents will be set or when
+  ///           USDETHPrice will be set in manual or automatic way.
 
   function setRate(uint256 _rateInWei) public onlyOwner returns(bool)
   {
     require (_rateInWei > 0);
     rate = _rateInWei;
   }
+
+
+
+
+  /// @author Robert Magier
+  /// @notice Change token price in USD. This function can be called only by contract owner. Recalculate rate in Wei if
+  ///         USDETHPrice is already set.
+  /// @param _rateInCents New token price. Amount of token for sale is calculated as a division of wei amount by rate
+  /// @dev new _rateInCents must be bigger than zero. It is not possible to set token price to zero. Pause sale instead of setting price to zero.
+
+  function setRateUSD(uint256 _rateInCents) public onlyOwner returns(bool)
+  {
+
+    require (_rateInCents > 0);
+    if (USDETHPrice > 0)
+    {
+      rate = _rateInCents/USDETHPrice*(10**18);
+      rateInCents = _rateInCents;
+    }
+    else {
+      rateInCents = _rateInCents;
+    }
+  }
+
+  /// @author Robert Magier
+  /// @notice Set USD to ETH exchange rate in cents. It can be used instead of calling Oraclize function to get it.
+  /// @param _usdEthCents New exchange rate.
+  /// @dev _usdEthCents must be bigger than zero. When rateInCents is already set it will recalculate rate in Wei.
+
+function setUSDETH(uint _usdEthCents) public onlyOwner
+{
+  require(_usdEthCents  > 0 );
+  USDETHPrice = _usdEthCents;
+  if(rateInCents > 0)
+    {
+      rate = rateInCents/USDETHPrice*(10**18);
+    }
+}
+
+/// @author Robert Magier
+/// @notice Change token price. This function can be called only by contract owner.
+/// @param _rateInCents New token price. Amount of token for sale is calculated as a division of wei amount by rate
+/// @dev new _rateInCents must be bigger than zero. It is not possible to set token price to zero. Pause sale instead of setting price to zero.
+
+function setRateUSDAutomatic(uint256 _rateInCents) public onlyOwner returns(bool)
+{
+  require (_rateInCents > 0);
+  rateInCents = _rateInCents;
+  updateUSDETH(61000);
+  if (USDETHPrice > 0)
+  {
+      rate = _rateInCents/USDETHPrice*(10**18);
+  }
+}
+
+  /// @author Robert Magier
+  /// @notice Return true if contract is running and false when it is paused.
+  /// @dev This  function simply returns negativee value of paused variable. It may become more complicated when there is more condition for contract to be running or not.
+
+function getSaleState() public view returns (bool)
+{
+  return !paused;
+}
+
+/// @author Robert Magier
+/// @notice This is callback function which can be calld only by oraclize contracts to change USDETHPrice
+/// @dev It will recalculate rate in Wei if rateInCents is already set. Gas Limit for this function is around 61000
+
+
+function __callback(bytes32 myid, string result) public
+{
+  if (msg.sender != oraclize_cbAddress()) throw;
+  newETHPrice(result);
+  USDETHPrice = parseInt(result, 2); // let's save it as $ cents
+  if(rateInCents > 0)
+  {
+     rate = rateInCents/USDETHPrice*(10**18);  //set Rate in Wei if rateInCents is already set.
+  }
+}
+
+
+/// @author Robert Magier
+/// @notice Calls oraclize function to get current USDETH exchange rate.
+/// @param gasLimit is maximum gas limit which can be used by oraclize function to run callback function.
+/// @dev You have to send ETH to this function. Value has to cover cost of callback function and oraclize fee.
+
+function updateUSDETH(uint gasLimit) public payable  onlyOwner {
+     newOraclizeQuery("Oraclize query was sent, standing by for the answer..");
+     oraclize_query("URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0",gasLimit);
+
+}
+
 
 }

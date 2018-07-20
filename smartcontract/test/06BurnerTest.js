@@ -36,19 +36,19 @@ contract("06. Testing Burner Functionality",   async (accounts)=>{
     })
     it("Check if only Burner can call BurnForProAccount function", () => {
       return viddoTokenContract.SetBurner(accounts[0]).then((res)=>{
-        expect( viddoTokenContract.BurnForProAccount()).to.be.fulfilled;
+        expect( viddoTokenContract.BurnForProAccount(1)).to.be.fulfilled;
       })
     })
     it("Check if only Burner can call BurnForProAccount function.Non-burner user is rejected", () => {
       return viddoTokenContract.SetBurner(accounts[1]).then((res)=>{
-        expect( viddoTokenContract.BurnForProAccount()).to.be.rejected;
+        expect( viddoTokenContract.BurnForProAccount(1)).to.be.rejected;
       })
     })
     it("Check if BurnForProAccount function burns one token", () => {
       return viddoTokenContract.balanceOf(accounts[0]).then((res)=>{
         var balance = parseInt(res)
         return viddoTokenContract.SetBurner(accounts[0]).then((res)=>{
-          return viddoTokenContract.BurnForProAccount().then((res)=>{
+          return viddoTokenContract.BurnForProAccount(1).then((res)=>{
             return viddoTokenContract.balanceOf(accounts[0]).then((res)=>{
               expect(parseInt(res)).to.be.equal(balance-1)
             })
