@@ -28,6 +28,11 @@ contract("02. Testing Burning and Ownable functionality", function(accounts) {
       })
     });
 
+    it("Add accounts[0] and accounts[1] to whitelist",function () {
+      expect (viddoContract.addManyToWhitelist([accounts[0],accounts[1]])).to.be.eventually.fulfilled
+    })
+
+
     it("Contract owner is set to contract creator (accounts[0])", function() {
       return viddoContract.owner().then(function(res) {
         owner = res.toString()
