@@ -67,6 +67,10 @@ contract("01. Test Viddo Token Contract", function(accounts) {
 
   describe("Check token transfer and balance function", function() {
 
+    it("Add accounts to whitelist: account[1], accounts[2]",function () {
+      expect (viddoContract.addManyToWhitelist([accounts[1],accounts[2]])).to.be.eventually.fulfilled
+    })
+
     it("Transfer 50 000 000 tokens from owner to another account (accounts[1])", function() {
       return viddoContract.transfer(accounts[1], 50 * 10 ** 6).then(function(res) {
         return viddoContract.balanceOf(accounts[1]).then(function(res) {
@@ -93,7 +97,18 @@ contract("01. Test Viddo Token Contract", function(accounts) {
       })
     })
 
-    it("Transfer 15 000 000 tokens from accounts[1] to accounts[0]", function() {
+    it("Transfer 15 000 000 tokens from accounts[1] to accounts[0]. Must be rejected.accounts[0] is not on the whitelist", function() {
+      expect(viddoContract.transfer(accounts[0], 15 * 10 ** 6, {
+        "from": accounts[1]
+      })).to.be.eventually.rejected;
+    })
+
+    it("Add account[0] to whitelist",function () {
+      expect (viddoContract.addManyToWhitelist([accounts[0]])).to.be.eventually.fulfilled
+    })
+
+
+    it("Transfer 15 000 000 tokens from accounts[1] to accounts[0].", function() {
       expect(viddoContract.transfer(accounts[0], 15 * 10 ** 6, {
         "from": accounts[1]
       })).to.be.eventually.fulfilled;

@@ -49,6 +49,10 @@ contract("04. Testing Sale Contract",    (accounts)=>{
        it("Buying transaction should be rejected:",()=>{
        return expect(viddoSaleContract.send(100,{"from":accounts[1]})).to.be.eventually.rejected;
     })
+
+       it("Adding Sale Contract address to whitelist",()=>{
+         return expect(viddoTokenContract.addToWhitelist(viddoSaleContract.address,{"from":accounts[0]})).to.be.eventually.fulfilled;
+    })
        it("Transfering 100 tokens to Sale Contract.",()=>{
        return expect(viddoTokenContract.transfer(viddoSaleContract.address,100,{"from":accounts[0]})).to.be.eventually.fulfilled;
     })
@@ -64,7 +68,7 @@ contract("04. Testing Sale Contract",    (accounts)=>{
 })
 
    it("Add accounts[1] to whitelist must be fulfilled",()=>{
-   return expect(viddoSaleContract.addToWhitelist(accounts[1],{"from":accounts[0]})).to.be.eventually.fulfilled;
+   return expect(viddoTokenContract.addToWhitelist(accounts[1],{"from":accounts[0]})).to.be.eventually.fulfilled;
 })
 
   it("Buying transaction should succeed. Accounts[1] is ON the whitelist",()=>{
@@ -95,7 +99,7 @@ return  viddoTokenContract.balanceOf(viddoSaleContract.address).then(function(re
 })
 
   it("Add accounts[1] to whitelist must be fulfilled",()=>{
-  return expect(viddoSaleContract.addToWhitelist(accounts[1],{"from":accounts[0]})).to.be.eventually.fulfilled;
+  return expect(viddoTokenContract.addToWhitelist(accounts[1],{"from":accounts[0]})).to.be.eventually.fulfilled;
 })
 
   it("Transfering 100 tokens to Sale Contract.",()=>{
@@ -129,7 +133,7 @@ it("Transfer 100 tokens to Sale Contract. Set Rate to 30. Send 100 wei and check
 })
 
   it("Remove accounts[1] from whitelist must be fulfilled",()=>{
-  return expect(viddoSaleContract.removeFromWhitelist(accounts[1],{"from":accounts[0]})).to.be.eventually.fulfilled;
+  return expect(viddoTokenContract.removeFromWhitelist(accounts[1],{"from":accounts[0]})).to.be.eventually.fulfilled;
 })
 
   it("Buying transaction should fail. Accounts[1] is NOT on the whitelist",()=>{

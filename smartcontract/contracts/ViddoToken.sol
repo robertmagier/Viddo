@@ -37,6 +37,55 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
 
   /* function GenerateReceiver() public onlyOwner returns (EmptyReceiver); */
 
+  /// @dev This parameter is used to store list of addresses which are allowed to receive tokens.
+  mapping(address => bool) public whitelist;
+
+  /**
+   * @dev Reverts if beneficiary is not whitelisted. Can be used when extending this contract.
+   */
+  modifier isWhitelisted(address _beneficiary) {
+    require(whitelist[_beneficiary] || receivers[_beneficiary]); // beneficiary must either on whitelist or be receiver
+    _;
+  }
+
+
+    /**
+     * @dev Adds single address to whitelist.
+     * @param _beneficiary Address to be added to the whitelist
+     */
+    function addToWhitelist(address _beneficiary) external onlyOwner {
+      whitelist[_beneficiary] = true;
+    }
+
+    /**
+     * @dev Adds list of addresses to whitelist. Not overloaded due to limitations with truffle testing.
+     * @param _beneficiaries Addresses to be added to the whitelist
+     */
+    function addManyToWhitelist(address[] _beneficiaries) external onlyOwner {
+      for (uint256 i = 0; i < _beneficiaries.length; i++) {
+        whitelist[_beneficiaries[i]] = true;
+      }
+    }
+    /**
+     * @dev Adds list of addresses to whitelist. Not overloaded due to limitations with truffle testing.
+     * @param _beneficiaries Addresses to be added to the whitelist
+     */
+    function removeManyFromWhitelist(address[] _beneficiaries) external onlyOwner {
+      for (uint256 i = 0; i < _beneficiaries.length; i++) {
+        whitelist[_beneficiaries[i]] = false;
+      }
+    }
+
+    /**
+     * @dev Removes single address from whitelist.
+     * @param _beneficiary Address to be removed to the whitelist
+     */
+    function removeFromWhitelist(address _beneficiary) external onlyOwner {
+      whitelist[_beneficiary] = false;
+    }
+
+
+
   /// @dev Last Receiver is only used for testig purpose because web3 library doesn't allow to read values by state changin transaction. Truffle test framework doesn't also read events. The proper way to read last Receiver value is to read NewProReceiver event value.
   address public lastReceiver;
   event NewProAccount(address indexed buyer,address indexed proAccountOwner,uint accountsNumber);
@@ -87,8 +136,6 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
     return true;
   }
 
-
-
   /// @author     Robert Magier
   /// @notice     This function burns token owned by msg.sender and change for proAccount. User can have
   ///             only one proAccount.
@@ -108,7 +155,6 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
     return true;
   }
 
-
   /// @author     Robert Magier
   /// @notice     When Pro Account is bought by viddo.com page this funcion can be used to burn token and emit
   ///             an event informing that New Pro Account was created. In this case no account address  will
@@ -119,7 +165,6 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
     burn(_number);
     emit NewProAccount(msg.sender,0x0,_number);
   }
-
 
   /// @author     Robert Magier
   /// @notice     Check if address is marked as receiver
@@ -231,7 +276,7 @@ function transferToMany(address[] _beneficiaries, uint[] _values) public
   ///           Standard.
   /// @dev      One additional thing which is implemented in this contract is to check if _to address is marked as
   ///           receiver. In this case we burn only one token and exchange it for pro account.
-function transfer(address _to, uint256 _value) public returns (bool) {
+function transfer(address _to, uint256 _value) public isWhitelisted(_to) returns (bool) {
 
   require(_value > 0);
   require(_to != address(0));
