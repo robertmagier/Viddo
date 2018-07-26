@@ -82,7 +82,7 @@ contract ViddoSale is Crowdsale,Ownable,usingOraclize{
   /// @notice Return sale contract state. 0 - presale, 1 - running, 2 - paused, 3 - finished.
   /// @return _state - current sale contract state
   /// @dev You can also read public contract value state. It returns the same value.
-  function getSaleState() public returns(uint8 _state)
+  function getSaleState() public view returns(uint8 _state)
   {
   return state;
   }
