@@ -419,9 +419,9 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
 
     /**
      * @dev Return list of bool informing if user is on the whitelist or not.
-     * @param _list list of addresses to check if they are on the whitelist. 
+     * @param _list list of addresses to check if they are on the whitelist.
      */
-    function areWhiteListed(address [] _list) returns(bool [])
+    function areWhiteListed(address [] _list) public view returns(bool [])
     {
       require (_list.length > 0);
       bool [] results;
