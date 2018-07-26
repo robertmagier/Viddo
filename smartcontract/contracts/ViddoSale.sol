@@ -68,20 +68,17 @@ contract ViddoSale is Crowdsale,Ownable,usingOraclize{
 
 
   /// @author Robert Magier
-  /// @notice Set sale contract state. 0 - presale, 1 - running, 2 - paused, 3 - finished.
+  /// @notice Set Sale contract state 0 - preico 1 -  icorunning, 2- icopaused, 3 - icofinished 4 -  postico.
   /// @return true if it was changed successfully. There will be false when you are finished state. You can't change it /// from there. You can't also go from running or paused to presale.
   /// @dev only contract owner can call this funcion.
-  function setSaleState(uint8 _state) public onlyOwner returns(bool _paused)
+  function setSaleState(uint8 _state) public onlyOwner
   {
-    require(_state == 0 || _state == 1 || _state == 2 || _state == 3);
-    if (state == 3) return false;
-    if (state > 0 && _state == 0) return false;
-
+    require(_state == 0 || _state == 1 || _state == 2 || _state == 3 || _state == 4);
     state = _state;
-    return true;
   }
 
   /// @author Robert Magier
+  /// @notice Return Sale contract state 0 - preico 1 -  icorunning, 2- icopaused, 3 - icofinished 4 -  postico.
   /// @notice Return sale contract state. 0 - presale, 1 - running, 2 - paused, 3 - finished.
   /// @return _state - current sale contract state
   /// @dev You can also read public contract value state. It returns the same value.
@@ -95,7 +92,7 @@ contract ViddoSale is Crowdsale,Ownable,usingOraclize{
   /// @notice It is modifier which allows to run code only when contract IS NOT paused.
 
   modifier ifRunning() {
-    require(state == 1);
+    require(state == 1 || state == 4);
     _;
   }
 

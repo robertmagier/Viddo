@@ -1667,11 +1667,10 @@ contract usingOraclize {
 
 */
 
-contract ViddoSale is Crowdsale,WhitelistedCrowdsale,usingOraclize{
+contract ViddoSale is Crowdsale,Ownable,usingOraclize{
 
   event SelfDestruct(address wallet);
-  bool paused = false;
-
+  uint8 state = 1;
   uint256 public USDETHPrice;
   uint256 public rateInCents;
 
@@ -1704,10 +1703,9 @@ contract ViddoSale is Crowdsale,WhitelistedCrowdsale,usingOraclize{
   /// @dev this is internal function which describe how to process purchase. Can be called only when contract is not paused. This means it will be impossible to buy tokens if this contract is paused.
   /// @param _beneficiary Ethereum account address which will receive tokens.
   /// @param _tokenAmount Amount of tokens which must be transfered to beneficiary
-  function _processPurchase(address _beneficiary, uint256 _tokenAmount) ifNotPaused internal
+  function _processPurchase(address _beneficiary, uint256 _tokenAmount) ifRunning internal
   {
     _deliverTokens(_beneficiary, _tokenAmount);
-
   }
 
   /// @author Robert Magier
@@ -1722,32 +1720,34 @@ contract ViddoSale is Crowdsale,WhitelistedCrowdsale,usingOraclize{
 
   }
 
-  /// @author Robert Magier
-  /// @notice Changes value of private variable paused. If paused == true then it is not possible to buy tokens.
-  /// @return _paused Boolean variable. It is true if contract was paused.
-  /// @dev only contract owner can call this funcion.
-  function Pause() public onlyOwner returns(bool _paused)
-  {
-    paused = true;
-    return true;
-  }
-  /// @author Robert Magier
-  /// @notice Changes value of private variable paused. If paused == false then IT IS  possible to buy tokens.
-  /// @return _paused Boolean variable. It is false if contract was unpaused.
-  /// @dev only contract owner can call this funcion.
 
-  function UnPause() public onlyOwner returns(bool _paused)
+
+  /// @author Robert Magier
+  /// @notice Set Sale contract state 0 - preico 1 -  icorunning, 2- icopaused, 3 - icofinished 4 -  postico.
+  /// @return true if it was changed successfully. There will be false when you are finished state. You can't change it /// from there. You can't also go from running or paused to presale.
+  /// @dev only contract owner can call this funcion.
+  function setSaleState(uint8 _state) public onlyOwner
   {
-    paused = false;
-    return false;
+    require(_state == 0 || _state == 1 || _state == 2 || _state == 3 || _state == 4);
+    state = _state;
+  }
+
+  /// @author Robert Magier
+  /// @notice Return Sale contract state 0 - preico 1 -  icorunning, 2- icopaused, 3 - icofinished 4 -  postico.
+  /// @notice Return sale contract state. 0 - presale, 1 - running, 2 - paused, 3 - finished.
+  /// @return _state - current sale contract state
+  /// @dev You can also read public contract value state. It returns the same value.
+  function getSaleState() public returns(uint8 _state)
+  {
+  return state;
   }
 
 
   /// @author Robert Magier
   /// @notice It is modifier which allows to run code only when contract IS NOT paused.
 
-  modifier ifNotPaused() {
-    require(paused == false);
+  modifier ifRunning() {
+    require(state == 1 || state == 4);
     _;
   }
 
@@ -1819,18 +1819,13 @@ function setRateUSDAutomatic(uint256 _rateInCents) public onlyOwner returns(bool
   }
 }
 
-  /// @author Robert Magier
-  /// @notice Return true if contract is running and false when it is paused.
-  /// @dev This  function simply returns negativee value of paused variable. It may become more complicated when there is more condition for contract to be running or not.
 
-function getSaleState() public view returns (bool)
-{
-  return !paused;
-}
+/// @author Robert Magier
+/// @notice This is callback function which can be calld only by oraclize contracts to change USDETHPrice
+/// @dev It will recalculate rate in Wei if rateInCents is already set. Gas Limit for this function is around 61000
 
 
-
-function __callback(bytes32 myid, string result)
+function __callback(bytes32 myid, string result) public
 {
   if (msg.sender != oraclize_cbAddress()) throw;
   newETHPrice(result);
@@ -1841,6 +1836,17 @@ function __callback(bytes32 myid, string result)
   }
 }
 
+
+/// @author Robert Magier
+/// @notice Calls oraclize function to get current USDETH exchange rate.
+/// @param gasLimit is maximum gas limit which can be used by oraclize function to run callback function.
+/// @dev You have to send ETH to this function. Value has to cover cost of callback function and oraclize fee.
+
+function updateUSDETH(uint gasLimit) public payable  onlyOwner {
+     newOraclizeQuery("Oraclize query was sent, standing by for the answer..");
+     oraclize_query("URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0",gasLimit);
+
+}
 
 
 }
