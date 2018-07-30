@@ -39,15 +39,33 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
 
   /// @dev This parameter is used to store list of addresses which are allowed to receive tokens.
   mapping(address => bool) public whitelist;
+  bool public whiteListing = true;
+
 
   /**
    * @dev Reverts if beneficiary is not whitelisted. Can be used when extending this contract.
    */
   modifier isWhitelisted(address _beneficiary) {
-    require(whitelist[_beneficiary] || receivers[_beneficiary]); // beneficiary must either on whitelist or be receiver
+    require((!whiteListing) || whitelist[_beneficiary] || receivers[_beneficiary]); // beneficiary must either on whitelist or be receiver or whiteListing must be of.
     _;
   }
 
+  /// @author     Robert Magier
+  /// @notice     Turn off whitelisting. If off then contract do not require user to be on the whitelist to get transfer
+  /// @dev        Can be called only by Owner.
+
+  function turnOffWhiteListing() public onlyOwner
+  {
+    whiteListing = false;
+  }
+
+  /// @author     Robert Magier
+  /// @notice     Turn on whitelisting. If on  then contract  require user to be on the whitelist to get transfer or to /// be receiver.
+  /// @dev        Can be called only by Owner.
+  function turnOnWhiteListing() public onlyOwner
+  {
+    whiteListing = true;
+  }
 
     /**
      * @dev Adds single address to whitelist.
