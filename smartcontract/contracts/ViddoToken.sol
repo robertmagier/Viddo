@@ -182,7 +182,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
     burn(number);
     hasProAccount[beneficiary] = hasProAccount[beneficiary].add(number);
     /* receiverBenefactor[beneficiary] = msg.sender; */
-    emit NewProAccount(msg.sender,beneficiary,1);
+    emit NewProAccount(msg.sender,beneficiary,number);
     return true;
   }
 
@@ -259,7 +259,6 @@ function GenerateReceiver() public onlyOwner returns (EmptyReceiver)
     emit NewProReceiver(msg.sender,newReceiver);
     lastReceiver = newReceiver;
     return EmptyReceiver(newReceiver);
-
 }
 
 
@@ -270,6 +269,15 @@ function GenerateReceiver() public onlyOwner returns (EmptyReceiver)
 function IsReceiverConfirmed (address receiver) public view returns (bool)
 {
   return hasProAccount[receiver]>0;
+}
+
+  /// @author     Robert Magier
+  /// @notice     Return number of pro accounts owned by account.
+  /// @param      _account address for which we return number of pro accounts.
+  /// @return     numer of owned pro accounts.
+function proAccountsNumber (address _account) public view returns (uint)
+{
+  return hasProAccount[_account];
 }
 
   /// @author     Robert Magier
