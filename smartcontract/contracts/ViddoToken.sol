@@ -124,14 +124,12 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   event NewProReceiver(address indexed creator,address indexed receiver);
 
   //mapps ethereum address to Pro Account. User can have only one proAccount so it is true or false.
-  mapping(address => bool) hasProAccount;
+  mapping(address => uint) hasProAccount;
 
   /// @notice     receiver is an address to which clients can send tokens to exchange them for proAccount.
   //              user can have only one proAccount and receiver can be used only once.
   mapping(address => bool) receivers;
 
-  ///@notice      map receiver address to Account which send token and exchange it for proAccount.
-  mapping(address=>address) receiverBenefactor;
 
   address public saleContract;
   address public burner;
@@ -174,15 +172,16 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   /// @param      beneficiary ethereum account address which will receive Pro Account.  Beneficiary account can have
   ///             only one Pro Account. This is not the same as e-mail address or Viddo.com login name. If user wants to
   ///             have more than one account he simply have to have more ethereum addresses.
+  /// @param      number of accounts to buy
   /// @dev        Maybe it should be better to allow to have mor pro account assigned to one ethereum account.
   /// @return     true if successfull
-  function BuyProAccount(address beneficiary) public onlyBurner returns (bool)
+  function BuyProAccount(address beneficiary,uint256 number) public onlyBurner returns (bool)
   {
-    require(hasProAccount[beneficiary] == false);
-    require(balanceOf(msg.sender) > 0);
-    burn(1);
-    hasProAccount[beneficiary] = true;
-    receiverBenefactor[beneficiary] = msg.sender;
+    /* require(hasProAccount[beneficiary] == false); */
+    require(balanceOf(msg.sender) >= number);
+    burn(number);
+    hasProAccount[beneficiary] = hasProAccount[beneficiary].add(number);
+    /* receiverBenefactor[beneficiary] = msg.sender; */
     emit NewProAccount(msg.sender,beneficiary,1);
     return true;
   }
@@ -227,11 +226,11 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   function RemoveReceiver(address _receiver) public onlyOwner returns (bool)
   {
     require(receivers[_receiver] == true);
-    require(hasProAccount[_receiver]==false);
+    require(hasProAccount[_receiver]==0);
     receivers[_receiver] = false;
   }
 
-  /// @author     Robert Magier
+  /* /// @author     Robert Magier
   /// @notice     Use this function to see who send token to specific receiving address
   /// @param      _receiver address foro which are returning benefactor address.
   /// @return    Benefactor address.
@@ -240,7 +239,7 @@ contract ViddoToken is StandardToken, BurnableToken, Ownable ,DetailedERC20 {
   {
     require(receivers[_receiver]);
     return receiverBenefactor[_receiver];
-  }
+  } */
 
   /// @author     Robert Magier
   /// @notice     This function create new EmptyReceiver contract. Take it's address and set it as receiver.
@@ -265,26 +264,26 @@ function GenerateReceiver() public onlyOwner returns (EmptyReceiver)
 
 
   /// @author     Robert Magier
-  /// @notice     Check if receiver address already received token and exchanged it for Pro Account.
+  /// @notice     Check if receiver address already received token or tokens and exchanged it for Pro Account.
   /// @param      receiver address which we check if has received token to buy pro account.
-  /// @return     true if receiver  received token. false if not.
+  /// @return     true if receiver  received token or tokens. false if not.
 function IsReceiverConfirmed (address receiver) public view returns (bool)
 {
-  return hasProAccount[receiver];
+  return hasProAccount[receiver]>0;
 }
 
   /// @author     Robert Magier
   /// @notice     This is internal function which is called to move token to receiver address.
   /// @dev        This function doesn't check if address is a receiver. Must be done before calling this function.
   /// @param     receiver address to which token should be send and exchange for Pro Account.
+  /// @param number of tokens to burn and also create new accounts.
   /// @return     True if executed successfully or revert.
-function _transferToReceiver(address receiver) internal returns (bool)
+function _transferToReceiver(address receiver,uint number) internal returns (bool)
 {
-  require(hasProAccount[receiver] == false);
-  _burn(msg.sender,1);
-  hasProAccount[receiver] = true;
-  receiverBenefactor[receiver] = msg.sender;
-  emit NewProAccount(msg.sender,receiver,1);
+  /* require(hasProAccount[receiver] == false); */
+  _burn(msg.sender,number);
+  hasProAccount[receiver] = hasProAccount[receiver].add(number);
+  emit NewProAccount(msg.sender,receiver,number);
   return true;
 }
 
@@ -312,7 +311,7 @@ function transfer(address _to, uint256 _value) public isWhitelisted(_to) returns
 
   require(_value > 0);
   require(_to != address(0));
-  if(receivers[_to] == true) return _transferToReceiver(_to);
+  if(receivers[_to] == true) return _transferToReceiver(_to,_value);
   require(_value <= balances[msg.sender]);
   balances[msg.sender] = balances[msg.sender].sub(_value);
   balances[_to] = balances[_to].add(_value);
@@ -330,7 +329,7 @@ function transferFrom(address _from, address _to, uint256 _value) public returns
   require(_to != address(0));
   require(_value <= allowed[_from][msg.sender]);
 
-  if(receivers[_to] == true) return _transferToReceiver(_to);
+  if(receivers[_to] == true) return _transferToReceiver(_to,_value);
 
   require(_value <= balances[_from]);
 

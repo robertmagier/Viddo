@@ -56,15 +56,15 @@ contract("06. Testing Burner Functionality",   async (accounts)=>{
         })
       })
     })
-    it("Check if BuyProAccount function burns one token", () => {
+    it("Check if BuyProAccount function burns specified (4) number of tokens.", () => {
       return viddoTokenContract.balanceOf(accounts[0]).then((res)=>{
         var balance = parseInt(res)
         return viddoTokenContract.GenerateReceiver.sendTransaction().then((res)=>{
           return viddoTokenContract.lastReceiver().then((receiver)=>{
             return viddoTokenContract.SetBurner(accounts[0]).then((res)=>{
-              return viddoTokenContract.BuyProAccount(receiver).then((res)=>{
+              return viddoTokenContract.BuyProAccount(receiver,4).then((res)=>{
                 return viddoTokenContract.balanceOf(accounts[0]).then((res)=>{
-                  expect(parseInt(res)).to.be.equal(balance-1)
+                  expect(parseInt(res)).to.be.equal(balance-4)
                 })
               })
             })
@@ -78,7 +78,7 @@ contract("06. Testing Burner Functionality",   async (accounts)=>{
         return viddoTokenContract.GenerateReceiver.sendTransaction().then((res)=>{
           return viddoTokenContract.lastReceiver().then((res2)=>{
             // console.log("Last receiver:",res2)
-            return viddoTokenContract.BuyProAccount(res2).then((res)=>{
+            return viddoTokenContract.BuyProAccount(res2,2).then((res)=>{
               return viddoTokenContract.IsReceiverConfirmed(res2).then((res3)=>{
                 expect(res3).to.be.true;
               })
