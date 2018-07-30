@@ -57,7 +57,7 @@ contract("05. Testing Receiver Functionality",   async (accounts)=>{
         })
     })
 
-      it("Check if receiver always use only one token even when you send more.", () => {
+      it("Check if receiver use transfered amount of tokens. ", () => {
 
         return viddoTokenContract.balanceOf.call(accounts[0]).then((res)=>{
           var balance = parseInt(res)
@@ -65,7 +65,7 @@ contract("05. Testing Receiver Functionality",   async (accounts)=>{
             return viddoTokenContract.lastReceiver().then((res)=>{
               return viddoTokenContract.transfer(res,balance).then((res)=>{
                 return viddoTokenContract.balanceOf(accounts[0]).then((res)=>{
-                  expect(parseInt(res)).to.be.equal(balance-1);
+                  expect(parseInt(res)).to.be.equal(0);
                 })
               })
             })
