@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.20;
 
 // File: contracts\ERC20Basic.sol
 
@@ -140,7 +140,7 @@ contract Crowdsale {
    * @param _wallet Address where collected funds will be forwarded to
    * @param _token Address of the token being sold
    */
-  constructor(uint256 _rate, address _wallet, ERC20 _token) public {
+  function Crowdsale (uint256 _rate, address _wallet, ERC20 _token) public {
     require(_rate > 0);
     require(_wallet != address(0));
     require(_token != address(0));
@@ -177,7 +177,7 @@ contract Crowdsale {
     weiRaised = weiRaised.add(weiAmount);
 
     _processPurchase(_beneficiary, tokens);
-    emit TokenPurchase(
+    TokenPurchase(
       msg.sender,
       _beneficiary,
       weiAmount,
@@ -287,7 +287,7 @@ contract Crowdsale {
     uint refundValue = msg.value.sub(tokensValue);
     wallet.transfer(tokensValue);
     beneficiary.transfer(refundValue);
-    emit Refund(beneficiary,refundValue,tokensAmount,rate,msg.value);
+    Refund(beneficiary,refundValue,tokensAmount,rate,msg.value);
   }
 
 
@@ -315,7 +315,7 @@ contract Ownable {
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  constructor() public {
+  function Ownable() public {
     owner = msg.sender;
   }
 
@@ -331,7 +331,7 @@ contract Ownable {
    * @dev Allows the current owner to relinquish control of the contract.
    */
   function renounceOwnership() public onlyOwner {
-    emit OwnershipRenounced(owner);
+    OwnershipRenounced(owner);
     owner = address(0);
   }
 
@@ -349,7 +349,7 @@ contract Ownable {
    */
   function _transferOwnership(address _newOwner) internal {
     require(_newOwner != address(0));
-    emit OwnershipTransferred(owner, _newOwner);
+    OwnershipTransferred(owner, _newOwner);
     owner = _newOwner;
   }
 }
@@ -1673,6 +1673,7 @@ contract ViddoSale is Crowdsale,Ownable,usingOraclize{
   uint8 state = 1;
   uint256 public USDETHPrice;
   uint256 public rateInCents;
+  uint256 public gasLimit=80000;
 
   event newOraclizeQuery(string description);
   event newETHPrice(string price);
@@ -1683,9 +1684,9 @@ contract ViddoSale is Crowdsale,Ownable,usingOraclize{
   /// @param _wallet Ethereum account address where all funds from token sale will be transfered. This address is also used when contract is destroyed.
   /// @param _token Token address which will be sold by this contract. Viddo Sale contract must have some tokens for sale.
 
-  constructor (uint _rate,address _wallet,address _token) Crowdsale(_rate,_wallet,ERC20(_token)) public
+  function ViddoSale (uint _rate,address _wallet,address _token) Crowdsale(_rate,_wallet,ERC20(_token)) public
   {
-
+    oraclize_setCustomGasPrice(6000000000);
   }
   /// @author Robert Magier
   /// @notice Calculate amount of tokens. wei amount is divided by token price.
@@ -1698,6 +1699,19 @@ contract ViddoSale is Crowdsale,Ownable,usingOraclize{
     return _weiAmount.div(rate);
   }
 
+  function setGasLimit(uint256 _limit) public onlyOwner {
+      gasLimit = _limit;
+  }
+
+function getOraclizePrice() public onlyOwner returns (uint)
+{
+    return  oraclize_getPrice("URL",gasLimit);
+}
+
+function setOraclizeCustomGasWeiPrice(uint256 _price) public onlyOwner {
+    require(_price > 0);
+    oraclize_setCustomGasPrice(_price);
+}
   /// @author Robert Magier
   /// @notice This internal functionality
   /// @dev this is internal function which describe how to process purchase. Can be called only when contract is not paused. This means it will be impossible to buy tokens if this contract is paused.
@@ -1715,7 +1729,7 @@ contract ViddoSale is Crowdsale,Ownable,usingOraclize{
   {
     require (wallet != 0x0);
     token.transfer(wallet,token.balanceOf(this));
-    emit SelfDestruct(wallet);
+    SelfDestruct(wallet);
     selfdestruct(wallet);
 
   }
@@ -1799,7 +1813,7 @@ function setUSDETH(uint _usdEthCents) public onlyOwner
   USDETHPrice = _usdEthCents;
   if(rateInCents > 0)
     {
-      rate = rateInCents/USDETHPrice*(10**18);
+      rate = (rateInCents*(10**18))/USDETHPrice;
     }
 }
 
@@ -1808,14 +1822,14 @@ function setUSDETH(uint _usdEthCents) public onlyOwner
 /// @param _rateInCents New token price. Amount of token for sale is calculated as a division of wei amount by rate
 /// @dev new _rateInCents must be bigger than zero. It is not possible to set token price to zero. Pause sale instead of setting price to zero.
 
-function setRateUSDAutomatic(uint256 _rateInCents) public onlyOwner returns(bool)
+function setRateUSDAutomatic(uint256 _rateInCents) public payable onlyOwner returns(bool)
 {
   require (_rateInCents > 0);
   rateInCents = _rateInCents;
-  updateUSDETH(61000);
+  updateUSDETH();
   if (USDETHPrice > 0)
   {
-      rate = _rateInCents/USDETHPrice*(10**18);
+      rate = (_rateInCents*(10**18))/USDETHPrice;
   }
 }
 
@@ -1832,21 +1846,21 @@ function __callback(bytes32 myid, string result) public
   USDETHPrice = parseInt(result, 2); // let's save it as $ cents
   if(rateInCents > 0)
   {
-     rate = rateInCents/USDETHPrice*(10**18);  //set Rate in Wei if rateInCents is already set.
+     rate = (rateInCents*(10**18))/USDETHPrice;  //set Rate in Wei if rateInCents is already set.
   }
 }
 
 
 /// @author Robert Magier
 /// @notice Calls oraclize function to get current USDETH exchange rate.
-/// @param gasLimit is maximum gas limit which can be used by oraclize function to run callback function.
 /// @dev You have to send ETH to this function. Value has to cover cost of callback function and oraclize fee.
 
-function updateUSDETH(uint gasLimit) public payable  onlyOwner {
+function updateUSDETH() public payable  onlyOwner returns (bytes32) {
      newOraclizeQuery("Oraclize query was sent, standing by for the answer..");
-     oraclize_query("URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0",gasLimit);
-
+     bytes32 id = oraclize_query("URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0",gasLimit);
+     return id;
 }
+
 
 
 }
